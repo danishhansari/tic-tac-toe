@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { produce } from "immer";
 
 function App() {
   const [turn, setTurn] = useState<number>(0);
+  const [winner, setWinner] = useState<number>();
   const [ticTacToeState, setTicTacToeState] = useState<Array<Array<number>>>([
     [-1, -1, -1],
     [-1, -1, -1],
@@ -20,9 +21,65 @@ function App() {
     );
   };
 
+  const checkWinner = useCallback(() => {
+    for (let i = 0; i < 3; i++) {
+      if (
+        ticTacToeState[i][0] === ticTacToeState[i][1] &&
+        ticTacToeState[i][1] === ticTacToeState[i][2] &&
+        ticTacToeState[i][0] !== -1
+      ) {
+        setWinner(ticTacToeState[i][0]);
+        return;
+      }
+    }
+
+    for (let i = 0; i < 3; i++) {
+      if (
+        ticTacToeState[0][i] === ticTacToeState[1][i] &&
+        ticTacToeState[1][i] === ticTacToeState[2][i] &&
+        ticTacToeState[0][i] !== -1
+      ) {
+        setWinner(ticTacToeState[0][i]);
+        return;
+      }
+
+      if (
+        ticTacToeState[0][0] === ticTacToeState[1][1] &&
+        ticTacToeState[1][1] === ticTacToeState[2][2] &&
+        ticTacToeState[0][0] !== -1
+      ) {
+        setWinner(ticTacToeState[0][0]);
+        return;
+      }
+
+      if (
+        ticTacToeState[0][2] === ticTacToeState[1][1] &&
+        ticTacToeState[1][1] === ticTacToeState[2][0] &&
+        ticTacToeState[0][2] !== -1
+      ) {
+        setWinner(ticTacToeState[0][2]);
+        return;
+      }
+    }
+  }, [ticTacToeState]);
+
+  useEffect(() => {
+    checkWinner();
+  }, [checkWinner]);
+
   return (
     <>
-      <main className="flex w-full h-screen bg-zinc-900 text-gray-100 justify-center items-center">
+      <main className="flex w-full flex-col h-screen bg-zinc-900 text-gray-100 justify-center items-center">
+        {winner !== undefined ? (
+          <div className="text-white text-3xl">
+            Winner is {winner === 0 ? "O" : "X"}
+          </div>
+        ) : (
+          <div className="text-white text-3xl">
+            Turn is {turn === 0 ? "O" : "X"}
+          </div>
+        )}
+
         <div className="grid grid-cols-3">
           {ticTacToeState.map((row, i) => {
             return (
