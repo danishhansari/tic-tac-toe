@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { WebSocketContext } from "./WebSocketProvider";
+import { useNavigate } from "react-router-dom";
 
 const Intro: React.FC = () => {
   const [name, setName] = useState("");
   const socket = useContext(WebSocketContext);
   const [waiting, setWaiting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (socket) {
@@ -15,6 +17,11 @@ const Intro: React.FC = () => {
           if (message.type === "join") {
             const messageData = message.data;
             setWaiting(messageData.status === "wait");
+          }
+          if (message.type === "found_match") {
+            const messageData = message.data;
+            const gameId = messageData.game_id;
+            navigate(`/game/${gameId}`)
           }
         }
       };

@@ -9,11 +9,43 @@ interface LastUser {
 
 interface Game {
   players: LastUser[];
-  board: Array<Array<string>>;
+  board: Array<Array<number>>;
   id: string;
 }
 let lastUser: LastUser | undefined = undefined;
 const games: Game[] = [];
+
+const handleJoin = (name: string, ws: ServerWebSocket<unknown>): void => {
+  if (lastUser === undefined) {
+    lastUser = { name, socket: ws };
+    ws.send(
+      JSON.stringify({
+        type: "join",
+        data: {
+          status: "wait",
+        },
+      })
+    );
+    ws.send(JSON.stringify({ type: "starting", data: {} }));
+  } else {
+    const game: Game = {
+      players: [lastUser, { name, socket: ws }],
+      board: [
+        [-1, -1, -1],
+        [-1, -1, -1],
+        [-1, -1, -1],
+      ],
+      id: Math.random().toString(36).substring(7),
+    };
+    games.push(game);
+    ws.send(
+      JSON.stringify({ type: "found_match", data: { game_id: game.id } })
+    );
+    lastUser.socket.send(
+      JSON.stringify({ type: "found_match", data: { game_id: game.id } })
+    );
+  }
+};
 
 Bun.serve({
   port: 3001,
@@ -27,18 +59,9 @@ Bun.serve({
     async message(ws: ServerWebSocket, message: MessageType) {
       if (message && typeof message === "string") {
         console.log("Received message " + message);
-        if (lastUser === undefined) {
-          lastUser = { name: message, socket: ws };
-          ws.send(
-            JSON.stringify({
-              type: "join",
-              data: {
-                status: "wait",
-              },
-            })
-          );
-          ws.send(JSON.stringify({ type: "starting", data: {} }));
-        } else {
+        const data = JSON.parse(message);
+        if (data.type === "join") {
+          handleJoin(data.name, ws);
         }
       }
     },
