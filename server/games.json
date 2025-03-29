@@ -1,0 +1,15 @@
+[
+  {
+    "players": [
+      { "name": "Danish", "socket": {}, "sign": 0 },
+      { "name": "Saad", "socket": {}, "sign": 1 }
+    ],
+    "board": [
+      [-1, -1, -1],
+      [-1, -1, -1],
+      [-1, -1, -1]
+    ],
+    "id": "tterh",
+    "turn": 1
+  }
+]

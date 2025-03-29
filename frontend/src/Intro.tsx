@@ -24,7 +24,9 @@ const Intro: React.FC = () => {
             navigate(`/game/${gameId}`)
           }
         }
+
       };
+      
     }
   }, []);
 
